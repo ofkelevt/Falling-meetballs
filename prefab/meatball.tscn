@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://bt6luhvgy3ld0"]
+
+[ext_resource type="PackedScene" uid="uid://blqcrqc1kt8hp" path="res://Models/MeatBallNotPlayer.glb" id="1_4gx0g"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_3dxm6"]
+radius = 1.15
+
+[node name="meatball" type="RigidBody3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_3dxm6")
+
+[node name="MeatBallNotPlayer" parent="." instance=ExtResource("1_4gx0g")]
