@@ -1,0 +1,38 @@
+[gd_scene load_steps=6 format=3 uid="uid://b5hri3urb7e6o"]
+
+[ext_resource type="Script" uid="uid://4yipvnnpqjdi" path="res://CircleSpawner.cs" id="1_glv2v"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_uu6xs"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_r0du0"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_cm0pq"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fos0i"]
+
+[node name="Main" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(100, 0, 0, 0, 0.2, 0, 0, 0, 100, 0, 0, 0)
+mesh = SubResource("BoxMesh_uu6xs")
+skeleton = NodePath("spawn Platform2/CollisionShape3D")
+
+[node name="spawn Platform2" type="RigidBody3D" parent="MeshInstance3D"]
+gravity_scale = 0.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/spawn Platform2"]
+shape = SubResource("BoxShape3D_r0du0")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(5, 0, 0, 0, 0.2, 0, 0, 0, 5, 0, 20, 0)
+mesh = SubResource("BoxMesh_cm0pq")
+
+[node name="spawn Platform" type="RigidBody3D" parent="MeshInstance3D2"]
+gravity_scale = 0.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D2/spawn Platform"]
+shape = SubResource("BoxShape3D_fos0i")
+
+[node name="Node3D" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 50, 0)
+script = ExtResource("1_glv2v")
