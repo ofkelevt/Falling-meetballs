@@ -24,7 +24,7 @@ height = 2.3574219
 [node name="Main" type="Node3D"]
 
 [node name="KillBox" type="MeshInstance3D" parent="."]
-transform = Transform3D(100, 0, 0, 0, 0.2, 0, 0, 0, 100, 0, 0, 0)
+transform = Transform3D(100, 0, 0, 0, 0.2, 0, 0, 0, 100, 0.11051369, -9.536743e-07, -0.021284103)
 mesh = SubResource("BoxMesh_uu6xs")
 skeleton = NodePath("Area3D/CollisionShape3D")
 
@@ -56,10 +56,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 22.812777, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.198349, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.02163744, -0.08439255, -0.048329473)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.02163744, 0.17284966, -0.048329473)
 shape = SubResource("CapsuleShape3D_0xm2m")
 disabled = true
 debug_color = Color(5.7756904e-07, 0.5602032, 0.88756615, 0.41960785)
 
 [node name="Node3D" type="Node3D" parent="."]
 script = ExtResource("1_uu6xs")
+
+[node name="Node" type="Node" parent="."]
