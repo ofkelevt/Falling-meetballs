@@ -1,14 +1,11 @@
-[gd_scene load_steps=12 format=3 uid="uid://chov6u428si11"]
-
+[gd_scene load_steps=13 format=3 uid="uid://chov6u428si11"]
 
 [ext_resource type="Script" uid="uid://daoo7ummx5dnq" path="res://Scripts/KillBox.gd" id="1_1bvp3"]
-[ext_resource type="Script" path="res://Scripts/CircleSpawner.gd" id="1_glv2v"]
+[ext_resource type="Script" uid="uid://d0vxqfrju7wg3" path="res://Scripts/CircleSpawner.gd" id="1_glv2v"]
 [ext_resource type="PackedScene" uid="uid://1a7b3j87a7wy" path="res://Models/MeatBallFinal.glb" id="1_ig7tw"]
-
-[ext_resource type="PackedScene" uid="uid://blqcrqc1kt8hp" path="res://Models/MeatBallNotPlayer.glb" id="2_cm0pq"]
-[ext_resource type="Script" uid="uid://d23nfy0jxge3b" path="res://PlayerController.gd" id="3_fos0i"]
-[ext_resource type="Script" uid="uid://d2dxankiysb6u" path="res://CameraFollow.gd" id="5_fos0i"]
-
+[ext_resource type="PackedScene" uid="uid://bt6luhvgy3ld0" path="res://prefab/meatball.tscn" id="3_3dxm6"]
+[ext_resource type="Script" uid="uid://d23nfy0jxge3b" path="res://Scripts/PlayerController.gd" id="3_fos0i"]
+[ext_resource type="Script" uid="uid://d2dxankiysb6u" path="res://Scripts/CameraFollow.gd" id="5_fos0i"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ig7tw"]
 albedo_color = Color(1, 0.26000598, 0.2008352, 1)
@@ -22,9 +19,8 @@ material = SubResource("StandardMaterial3D_ig7tw")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_fos0i"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0xm2m"]
-radius = 1.1787109
-height = 2.3574219
+[sub_resource type="BoxShape3D" id="BoxShape3D_3dxm6"]
+size = Vector3(1, 2, 1)
 
 [node name="Main" type="Node3D"]
 
@@ -34,11 +30,11 @@ mesh = SubResource("BoxMesh_uu6xs")
 skeleton = NodePath("Area3D/CollisionShape3D")
 
 [node name="Area3D" type="Area3D" parent="KillBox"]
+script = ExtResource("1_1bvp3")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="KillBox/Area3D"]
 transform = Transform3D(1.0000002, 0, 0, 0, 1, 0, 0, 0, 1.0000002, 0, 0, 0)
 shape = SubResource("BoxShape3D_r0du0")
-script = ExtResource("1_1bvp3")
 
 [node name="Spawnpoint" type="MeshInstance3D" parent="."]
 transform = Transform3D(5, 0, 0, 0, 0.2, 0, 0, 0, 5, 0, 20, 0)
@@ -56,29 +52,27 @@ script = ExtResource("1_glv2v")
 radius = 40.0
 no_spawn_radius = 20.0
 spawn_counter = 5
-spawned_scene = ExtResource("2_cm0pq")
+spawned_scene = ExtResource("3_3dxm6")
 spawn_rate = 1.5
 
-
-[node name="CharacterBody3D" type="CharacterBody3D" parent="." node_paths=PackedStringArray("camera")]
+[node name="Player" type="CharacterBody3D" parent="." node_paths=PackedStringArray("camera")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.827055, 0)
 axis_lock_angular_x = true
-axis_lock_angular_y = true
+axis_lock_angular_z = true
 script = ExtResource("3_fos0i")
 camera = NodePath("../Camera3D")
 
-[node name="MeatBallFinal" parent="CharacterBody3D" instance=ExtResource("1_ig7tw")]
+[node name="MeatBallFinal" parent="Player" instance=ExtResource("1_ig7tw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9522362, 0)
 visible = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.02163744, 0.17284966, -0.048329473)
-shape = SubResource("CapsuleShape3D_0xm2m")
-disabled = true
+[node name="Player#CollisionShape3D" type="CollisionShape3D" parent="Player"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+shape = SubResource("BoxShape3D_3dxm6")
 debug_color = Color(5.7756904e-07, 0.5602032, 0.88756615, 0.41960785)
-
 
 [node name="Camera3D" type="Camera3D" parent="." node_paths=PackedStringArray("target")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.747671, 0)
 cull_mask = 1048063
 script = ExtResource("5_fos0i")
-target = NodePath("../CharacterBody3D")
+target = NodePath("../Player")
