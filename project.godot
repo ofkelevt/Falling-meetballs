@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="Falling meetball"
+run/main_scene="uid://chov6u428si11"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 
 [dotnet]

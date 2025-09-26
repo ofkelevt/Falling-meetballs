@@ -1,4 +1,4 @@
-extends "res://Spawner.gd"  # inherit from the base spawner above
+extends "Spawner.gd"  # inherit from the base spawner above
 
 @export var radius: float = 25.0
 @export var no_spawn_radius: float = 10.0
