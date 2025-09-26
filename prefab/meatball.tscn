@@ -1,13 +1,23 @@
-[gd_scene load_steps=3 format=3 uid="uid://bt6luhvgy3ld0"]
+[gd_scene load_steps=5 format=3 uid="uid://bt6luhvgy3ld0"]
 
 [ext_resource type="PackedScene" uid="uid://blqcrqc1kt8hp" path="res://Models/MeatBallNotPlayer.glb" id="1_4gx0g"]
+[ext_resource type="Script" uid="uid://br1fr0bwd02fm" path="res://prefab/GravityOnly.gd" id="1_7mhmu"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_7mhmu"]
+friction = 0.0
+absorbent = true
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_3dxm6"]
 radius = 1.15
 
 [node name="meatball" type="RigidBody3D"]
+physics_material_override = SubResource("PhysicsMaterial_7mhmu")
+gravity_scale = 0.0
+script = ExtResource("1_7mhmu")
+gravity_strength = 2.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0)
 shape = SubResource("SphereShape3D_3dxm6")
 
-[node name="MeatBallNotPlayer" parent="." instance=ExtResource("1_4gx0g")]
+[node name="MeatBallNotPlayer" parent="CollisionShape3D" instance=ExtResource("1_4gx0g")]
