@@ -1,6 +1,6 @@
 extends Area3D
 
-@export var respawn_position: Vector3 = Vector3(8, 9, -3)
+@export var respawn_position: Vector3 = Vector3(0, 28.82, 0)
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
