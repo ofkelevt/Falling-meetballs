@@ -1,7 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://chov6u428si11"]
+[gd_scene load_steps=10 format=3 uid="uid://chov6u428si11"]
 
-[ext_resource type="Script" path="res://CircleSpawner.cs" id="1_glv2v"]
+[ext_resource type="Script" uid="uid://d0vxqfrju7wg3" path="res://Scripts/CircleSpawner.gd" id="1_glv2v"]
 [ext_resource type="PackedScene" uid="uid://1a7b3j87a7wy" path="res://Models/MeatBallFinal.glb" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://lbmjfrqk8nmb" path="res://Scripts/Spawner.gd" id="1_uu6xs"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ig7tw"]
 albedo_color = Color(1, 0.26000598, 0.2008352, 1)
@@ -42,7 +43,7 @@ gravity_scale = 0.0
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D2/spawn Platform"]
 shape = SubResource("BoxShape3D_fos0i")
 
-[node name="Node3D" type="Node3D" parent="."]
+[node name="spawner" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 50, 0)
 script = ExtResource("1_glv2v")
 
@@ -56,3 +57,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.02163744, -0.08439255, -0.
 shape = SubResource("CapsuleShape3D_0xm2m")
 disabled = true
 debug_color = Color(5.7756904e-07, 0.5602032, 0.88756615, 0.41960785)
+
+[node name="Node3D" type="Node3D" parent="."]
+script = ExtResource("1_uu6xs")
