@@ -17,6 +17,7 @@ extends CharacterBody3D
 
 var _pitch := 0.0
 var _move_dir := Vector3.ZERO
+var _jumped = false;
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -48,23 +49,24 @@ func _process(_dt: float) -> void:
 	if camera:
 		var yaw := camera.global_transform.basis.get_euler().y
 		rotation.y = yaw
-	if(Input.is_action_just_pressed("jump")):
-		print_debug("jumped")
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		# v0' = v0 / apex_time_scale
 		velocity.y = jump_force / max(apex_time_scale, 0.001)
+		_jumped = true;
 
 func _physics_process(dt: float) -> void:
 	# Gravity adjustments
 	if not is_on_floor():
 		if velocity.y <= 0.0:
-			velocity.y += fall_multiplier * ProjectSettings.get_setting("physics/3d/default_gravity") * dt * -1.0
+			if velocity.y > -2:
+				velocity.y = -2
+			else: velocity.y *= fall_multiplier
 		elif velocity.y > 0.0:
 			var ascent_multiplier := 1.0 / (apex_time_scale * apex_time_scale)
 			velocity.y += (ascent_multiplier - 1.0) * ProjectSettings.get_setting("physics/3d/default_gravity") * dt * -1.0
 	if velocity.y < max_fall_speed:
 		velocity.y = max_fall_speed
-
+	_jumped = false
 	# Horizontal friction or acceleration
 	var horizontal := Vector3(velocity.x, 0.0, velocity.z)
 	if _move_dir == Vector3.ZERO:
@@ -84,6 +86,3 @@ func _physics_process(dt: float) -> void:
 		velocity.z = to2.y
 
 	move_and_slide()
-	for i in get_slide_collision_count():
-		var c = get_slide_collision(i)
-		printt("hit", c.get_collider(), "normal", c.get_normal())

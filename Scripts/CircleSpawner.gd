@@ -61,8 +61,9 @@ func place(pos: Vector3):
 	last_spawns[0] = pos
 
 	var obj = spawned_scene.instantiate()
-	obj.global_transform.origin = pos
 	add_child(obj)
+	obj.global_transform.origin = pos
+	
 
 func rand_point_in_disk(r: float) -> Vector3:
 	var angle = randf() * TAU
