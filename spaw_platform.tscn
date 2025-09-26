@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://bfb12sj55qq1u"]
-
-[ext_resource type="Script" uid="uid://q4lcmlovd7ve" path="res://SpawPlatform.cs" id="1_al34d"]
-
-[node name="spawPlatform" type="Node3D"]
-script = ExtResource("1_al34d")
-
-[node name="RigidBody3D" type="RigidBody3D" parent="."]
