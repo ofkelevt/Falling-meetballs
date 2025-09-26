@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://cvgvle0y0u43l"]
+[gd_scene load_steps=11 format=3 uid="uid://cmqbmb2to1nf4"]
 
 [ext_resource type="Script" uid="uid://daoo7ummx5dnq" path="res://Scripts/KillBox.gd" id="1_1bvp3"]
 [ext_resource type="Script" path="res://Scripts/CircleSpawner.gd" id="1_glv2v"]
