@@ -9,18 +9,20 @@ extends CharacterBody3D
 @export var jump_force: float = 15.0
 
 @export var ground_accel: float = 5.0
-@export var air_accel: float = 2.0
+@export var air_accel: float = 2.0 
 @export var max_speed: float = 8.0
 @export var ground_friction: float = 20.0
-@export var air_friction: float = 2.0
+@export var air_drag: float = 2.0
 @export var over_speed_friction: float = 40.0
 
 var _pitch := 0.0
 var _move_dir := Vector3.ZERO
 var _jumped = false;
+var collision 
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	collision = $CollisionShape3D
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -53,30 +55,36 @@ func _process(_dt: float) -> void:
 		# v0' = v0 / apex_time_scale
 		velocity.y = jump_force / max(apex_time_scale, 0.001)
 		_jumped = true;
+	if collision.position != Vector3.ZERO:
+		print_debug("bug")
 
 func _physics_process(dt: float) -> void:
 	# Gravity adjustments
 	if not is_on_floor():
-		if velocity.y <= 0.0:
-			if velocity.y > -2:
-				velocity.y = -2
-			else: velocity.y *= fall_multiplier
-		elif velocity.y > 0.0:
+		if velocity.y <= 0:
+			velocity.y -= fall_multiplier * ProjectSettings.get_setting("physics/3d/default_gravity") * dt
+		else:
 			var ascent_multiplier := 1.0 / (apex_time_scale * apex_time_scale)
 			velocity.y += (ascent_multiplier - 1.0) * ProjectSettings.get_setting("physics/3d/default_gravity") * dt * -1.0
 	if velocity.y < max_fall_speed:
 		velocity.y = max_fall_speed
+	if is_on_floor() and not _jumped:
+		velocity.y = - ProjectSettings.get_setting("physics/3d/default_gravity") #importent to match the meetball gravity strencth 
 	_jumped = false
 	# Horizontal friction or acceleration
 	var horizontal := Vector3(velocity.x, 0.0, velocity.z)
-	if _move_dir == Vector3.ZERO:
-		var fric := ground_friction if is_on_floor() else air_friction
-		var to := horizontal.move_toward(Vector3.ZERO, fric * dt)
+	if not is_on_floor():
+		var to := horizontal.move_toward(Vector3.ZERO, air_drag * dt)
+		velocity.x = to.x
+		velocity.z = to.z
+	if _move_dir == Vector3.ZERO and is_on_floor():
+		var to := horizontal.move_toward(Vector3.ZERO, ground_friction * dt)
 		velocity.x = to.x
 		velocity.z = to.z
 	else:
 		var accel := ground_accel if is_on_floor() else air_accel
 		velocity += _move_dir * accel * dt
+	
 
 	# Soft cap
 	var speed := Vector2(velocity.x, velocity.z).length()
