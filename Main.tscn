@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" uid="uid://daoo7ummx5dnq" path="res://Scripts/KillBox.gd" id="1_1bvp3"]
 [ext_resource type="Script" uid="uid://d0vxqfrju7wg3" path="res://Scripts/CircleSpawner.gd" id="1_glv2v"]
-[ext_resource type="PackedScene" uid="uid://1a7b3j87a7wy" path="res://Models/MeatBallFinal.glb" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://bt6luhvgy3ld0" path="res://prefab/meatball.tscn" id="3_3dxm6"]
 [ext_resource type="Script" uid="uid://d23nfy0jxge3b" path="res://Scripts/PlayerController.gd" id="3_fos0i"]
+[ext_resource type="PackedScene" uid="uid://bed56db26ygx7" path="res://Models/Player01.glb" id="3_lgr22"]
 [ext_resource type="Script" uid="uid://d2dxankiysb6u" path="res://Scripts/CameraFollow.gd" id="5_fos0i"]
 [ext_resource type="Environment" uid="uid://cf6fely6ntkeu" path="res://main-environment.tres" id="7_272bh"]
 
@@ -59,14 +59,14 @@ ground_friction = 400.0
 air_drag = 25.0
 over_speed_friction = 160.0
 
-[node name="MeatBallFinal" parent="Player/Player" instance=ExtResource("1_ig7tw")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9522362, 0)
-visible = false
-
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player/Player"]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 shape = SubResource("BoxShape3D_3dxm6")
 debug_color = Color(5.7756904e-07, 0.5602032, 0.88756615, 0.41960785)
+
+[node name="Player01" parent="Player/Player" instance=ExtResource("3_lgr22")]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, 0, 0.952, 0)
+visible = false
 
 [node name="Camera3D" type="Camera3D" parent="Player" node_paths=PackedStringArray("target")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.747671, 0)
