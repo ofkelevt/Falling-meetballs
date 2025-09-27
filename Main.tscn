@@ -53,10 +53,10 @@ max_fall_speed = -60.0
 apex_time_scale = 0.5
 jump_force = 30.0
 ground_accel = 50.0
-air_accel = 10.0
+air_accel = 55.0
 max_speed = 50.0
 ground_friction = 400.0
-air_friction = 10.0
+air_drag = 25.0
 over_speed_friction = 160.0
 
 [node name="MeatBallFinal" parent="Player/Player" instance=ExtResource("1_ig7tw")]

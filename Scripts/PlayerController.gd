@@ -9,10 +9,10 @@ extends CharacterBody3D
 @export var jump_force: float = 15.0
 
 @export var ground_accel: float = 5.0
-@export var air_accel: float = 2.0
+@export var air_accel: float = 2.0 
 @export var max_speed: float = 8.0
 @export var ground_friction: float = 20.0
-@export var air_friction: float = 2.0
+@export var air_drag: float = 2.0
 @export var over_speed_friction: float = 40.0
 
 var _pitch := 0.0
@@ -73,14 +73,18 @@ func _physics_process(dt: float) -> void:
 	_jumped = false
 	# Horizontal friction or acceleration
 	var horizontal := Vector3(velocity.x, 0.0, velocity.z)
-	if _move_dir == Vector3.ZERO:
-		var fric := ground_friction if is_on_floor() else air_friction
-		var to := horizontal.move_toward(Vector3.ZERO, fric * dt)
+	if not is_on_floor():
+		var to := horizontal.move_toward(Vector3.ZERO, air_drag * dt)
+		velocity.x = to.x
+		velocity.z = to.z
+	if _move_dir == Vector3.ZERO and is_on_floor():
+		var to := horizontal.move_toward(Vector3.ZERO, ground_friction * dt)
 		velocity.x = to.x
 		velocity.z = to.z
 	else:
 		var accel := ground_accel if is_on_floor() else air_accel
 		velocity += _move_dir * accel * dt
+	
 
 	# Soft cap
 	var speed := Vector2(velocity.x, velocity.z).length()
