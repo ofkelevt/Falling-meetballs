@@ -20,9 +20,10 @@ material = SubResource("StandardMaterial3D_272bh")
 [sub_resource type="BoxShape3D" id="BoxShape3D_r0du0"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_cm0pq"]
+size = Vector3(20, 0.2, 20)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_fos0i"]
-size = Vector3(0.04272461, 0.12164307, 0.039398193)
+size = Vector3(20, 0.2, 20)
 
 [node name="Main" type="Node3D"]
 
@@ -40,16 +41,29 @@ shadow_opacity = 0.75
 
 [node name="Player" type="CharacterBody3D" parent="Player" node_paths=PackedStringArray("camera")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 27.457474, 0)
+collision_layer = 3
+collision_mask = 3
 axis_lock_angular_x = true
 axis_lock_angular_z = true
 script = ExtResource("3_fos0i")
+mouse_sensitivity = 3.0
 camera = NodePath("../Camera3D")
+fall_multiplier = 6.0
+max_fall_speed = -60.0
+apex_time_scale = 0.5
+jump_force = 30.0
+ground_accel = 50.0
+air_accel = 10.0
+max_speed = 50.0
+ground_friction = 400.0
+air_friction = 10.0
+over_speed_friction = 160.0
 
 [node name="MeatBallFinal" parent="Player/Player" instance=ExtResource("1_ig7tw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9522362, 0)
 visible = false
 
-[node name="Player#CollisionShape3D" type="CollisionShape3D" parent="Player/Player"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player/Player"]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 shape = SubResource("BoxShape3D_3dxm6")
 debug_color = Color(5.7756904e-07, 0.5602032, 0.88756615, 0.41960785)
@@ -68,24 +82,26 @@ mesh = SubResource("BoxMesh_uu6xs")
 skeleton = NodePath("Area3D/CollisionShape3D")
 
 [node name="Area3D" type="Area3D" parent="Death-rewspawn/KillBox"]
+disable_mode = 1
 script = ExtResource("1_1bvp3")
+respawn_position = Vector3(0, 40, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Death-rewspawn/KillBox/Area3D"]
 transform = Transform3D(1.0000002, 0, 0, 0, 1, 0, 0, 0, 1.0000002, 0, 0, 0)
 shape = SubResource("BoxShape3D_r0du0")
 
 [node name="Spawnpoint" type="MeshInstance3D" parent="Death-rewspawn"]
-transform = Transform3D(5, 0, 0, 0, 0.2, 0, 0, 0, 5, 0, 20, 0)
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 20, 0)
 mesh = SubResource("BoxMesh_cm0pq")
 skeleton = NodePath("../..")
 
 [node name="Spawnpoint#spawn Platform" type="RigidBody3D" parent="Death-rewspawn/Spawnpoint"]
-transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, -100, 0)
 disable_mode = 2
+collision_layer = 2
+collision_mask = 2
 gravity_scale = 0.0
 
 [node name="Death-rewspawn_Spawnpoint_spawn Platform#CollisionShape3D" type="CollisionShape3D" parent="Death-rewspawn/Spawnpoint/Spawnpoint#spawn Platform"]
-transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0.0066987798, 20.20039, 0.013815689)
 shape = SubResource("BoxShape3D_fos0i")
 
 [node name="spawner" type="Node3D" parent="."]

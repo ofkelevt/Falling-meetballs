@@ -6,7 +6,6 @@ func _ready() -> void:
 	# Disable default gravity so we can apply it manually
 	gravity_scale = 0.0
 	# Prevent collision responses
-	freeze = true
 
 func _physics_process(delta: float) -> void:
 	# Apply gravity manually
