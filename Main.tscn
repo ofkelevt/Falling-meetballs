@@ -1,9 +1,9 @@
-[gd_scene load_steps=14 format=3 uid="uid://btg4b4kw78goy"]
+[gd_scene load_steps=14 format=3 uid="uid://bgg0fi5e4aior"]
 
 [ext_resource type="Script" uid="uid://daoo7ummx5dnq" path="res://Scripts/KillBox.gd" id="1_1bvp3"]
 [ext_resource type="Script" uid="uid://d0vxqfrju7wg3" path="res://Scripts/CircleSpawner.gd" id="1_glv2v"]
 [ext_resource type="PackedScene" uid="uid://bt6luhvgy3ld0" path="res://prefab/meatball.tscn" id="3_3dxm6"]
-[ext_resource type="Script" uid="uid://d23nfy0jxge3b" path="res://Scripts/PlayerController.gd" id="3_fos0i"]
+[ext_resource type="Script" uid="uid://dl4wmjidno0hq" path="res://Scripts/PlayerController.gd" id="3_fos0i"]
 [ext_resource type="PackedScene" uid="uid://bed56db26ygx7" path="res://Models/Player01.glb" id="3_lgr22"]
 [ext_resource type="Script" uid="uid://d2dxankiysb6u" path="res://Scripts/CameraFollow.gd" id="5_fos0i"]
 [ext_resource type="Environment" uid="uid://cf6fely6ntkeu" path="res://main-environment.tres" id="7_272bh"]
@@ -51,10 +51,11 @@ camera = NodePath("../Camera3D")
 fall_multiplier = 6.0
 max_fall_speed = -60.0
 apex_time_scale = 0.5
-jump_force = 30.0
+jump_force = 20.0
 ground_accel = 50.0
 air_accel = 55.0
 max_speed = 50.0
+sprint_multiplier = 1.8
 ground_friction = 400.0
 air_drag = 25.0
 over_speed_friction = 160.0
