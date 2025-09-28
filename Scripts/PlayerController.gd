@@ -11,6 +11,8 @@ extends CharacterBody3D
 @export var ground_accel: float = 5.0
 @export var air_accel: float = 2.0 
 @export var max_speed: float = 8.0
+@export var sprint_multiplier: float = 1.6
+@export var max_jumps: int = 2
 @export var ground_friction: float = 20.0
 @export var air_drag: float = 2.0
 @export var over_speed_friction: float = 40.0
@@ -18,11 +20,13 @@ extends CharacterBody3D
 var _pitch := 0.0
 var _move_dir := Vector3.ZERO
 var _jumped = false;
+var jumps_left: int = 0
 var collision 
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	collision = $CollisionShape3D
+	jumps_left = max_jumps
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -51,14 +55,20 @@ func _process(_dt: float) -> void:
 	if camera:
 		var yaw := camera.global_transform.basis.get_euler().y
 		rotation.y = yaw
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	if Input.is_action_just_pressed("jump") and jumps_left > 0:
 		# v0' = v0 / apex_time_scale
 		velocity.y = jump_force / max(apex_time_scale, 0.001)
 		_jumped = true;
+		jumps_left -= 1
 	if collision.position != Vector3.ZERO:
 		print_debug("bug")
 
 func _physics_process(dt: float) -> void:
+	# Sprint state and jump reset
+	var _is_sprinting := (Input.is_action_pressed("sprint") or Input.is_key_pressed(KEY_SHIFT))
+	var current_max_speed := max_speed * (sprint_multiplier if _is_sprinting else 1.0)
+	if is_on_floor():
+		jumps_left = max_jumps
 	# Gravity adjustments
 	if not is_on_floor():
 		if velocity.y <= 0:
@@ -88,7 +98,7 @@ func _physics_process(dt: float) -> void:
 
 	# Soft cap
 	var speed := Vector2(velocity.x, velocity.z).length()
-	if speed > max_speed:
+	if speed > current_max_speed:
 		var to2 := Vector2(velocity.x, velocity.z).move_toward(Vector2.ZERO, over_speed_friction * dt)
 		velocity.x = to2.x
 		velocity.z = to2.y
