@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://ba03mthc0q2lx"]
+
+[ext_resource type="Script" uid="uid://cxtgpbbpuhsch" path="res://Scripts/graplinghook.gd" id="1_1nkp0"]
+[ext_resource type="Script" uid="uid://hnj7ugdal2mq" path="res://Free Flight.gd" id="2_os60d"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+top_level = true
+script = ExtResource("1_1nkp0")
+start = Vector3(0, 13, 7)
+end = Vector3(10, 0, 0)
+point_count = 100
+rope_width = 1.0
+resolution = 30
+iterations = 10
+is_drawing = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.99954, 0, 0.030329078, 0, 1, 0, -0.030329078, 0, 0.99954, 0, 0, 9.060164)
+script = ExtResource("2_os60d")

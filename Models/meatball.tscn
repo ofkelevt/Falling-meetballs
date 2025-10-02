@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://bt6luhvgy3ld0"]
 
 [ext_resource type="PackedScene" uid="uid://blqcrqc1kt8hp" path="res://Models/MeatBallNotPlayer.glb" id="1_4gx0g"]
-[ext_resource type="Script" uid="uid://br1fr0bwd02fm" path="res://prefab/GravityOnly.gd" id="1_7mhmu"]
+[ext_resource type="Script" uid="uid://br1fr0bwd02fm" path="res://Scripts/GravityOnly.gd" id="1_7mhmu"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_7mhmu"]
 friction = 0.0
