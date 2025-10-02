@@ -3,8 +3,8 @@ extends Node3D
 
 @export var extend_speed: float = 2.0  # units/sec
 
-@onready var left_cable: Node3D     = $"left cable"
-@onready var left_arm_down: Node3D  = $"left arm down"
+@onready var left_cable: Node3D     = $"right cable"
+@onready var left_arm_down: Node3D  = $"right arm down"
 var active: int = -1
 var def_scale: float
 func _ready() -> void:

@@ -2,11 +2,11 @@
 
 [ext_resource type="Script" uid="uid://daoo7ummx5dnq" path="res://Scripts/KillBox.gd" id="1_1bvp3"]
 [ext_resource type="Script" uid="uid://d0vxqfrju7wg3" path="res://Scripts/CircleSpawner.gd" id="1_glv2v"]
-[ext_resource type="PackedScene" uid="uid://bt6luhvgy3ld0" path="res://prefab/meatball.tscn" id="3_3dxm6"]
+[ext_resource type="PackedScene" uid="uid://bt6luhvgy3ld0" path="res://Models/meatball.tscn" id="3_3dxm6"]
 [ext_resource type="Script" uid="uid://d23nfy0jxge3b" path="res://Scripts/PlayerController.gd" id="3_fos0i"]
 [ext_resource type="Texture2D" uid="uid://cb5k6m0qglwra" path="res://Models/Player_WhatsApp Image 2025-09-22 at 19.53.jpg" id="3_trn2v"]
 [ext_resource type="Texture2D" uid="uid://bacjec5aaa242" path="res://Models/Player_MeatBallFinal_image.png" id="4_03owx"]
-[ext_resource type="Script" uid="uid://bpwq7eq7ty33r" path="res://left_arm.gd" id="5_03owx"]
+[ext_resource type="Script" uid="uid://bpwq7eq7ty33r" path="res://Scripts/left_arm.gd" id="5_03owx"]
 [ext_resource type="Script" uid="uid://d2dxankiysb6u" path="res://Scripts/CameraFollow.gd" id="5_fos0i"]
 [ext_resource type="Environment" uid="uid://cf6fely6ntkeu" path="res://main-environment.tres" id="7_272bh"]
 
@@ -785,6 +785,8 @@ offset = Vector3(0, 1.07, -0.998)
 
 [node name="right arm" type="Node3D" parent="Player/worldCam"]
 transform = Transform3D(-0.95836556, 0.2606114, 0.11669192, 0.08166296, -0.14144439, 0.98657215, 0.27361742, 0.95502615, 0.114273146, 0.022, -0.68206215, 0.998)
+script = ExtResource("5_03owx")
+extend_speed = 10.0
 
 [node name="rigth arm up" type="MeshInstance3D" parent="Player/worldCam/right arm"]
 transform = Transform3D(2.4910727, -0.05885545, 0.43553913, 0.49053717, -0.042098403, -2.2072415, 0.07437801, 2.2488372, -0.02992107, -0.9639802, -0.05851245, 0.21538734)
@@ -806,7 +808,6 @@ skeleton = NodePath("")
 
 [node name="left arm" type="Node3D" parent="Player/worldCam"]
 transform = Transform3D(-0.8764917, -0.48140505, 0.0034113054, 0.08145323, -0.14131023, 0.9866088, -0.47447637, 0.86503226, 0.16306922, -0.021989822, -0.68187904, 0.998)
-script = ExtResource("5_03owx")
 
 [node name="left arm up" type="MeshInstance3D" parent="Player/worldCam/left arm"]
 transform = Transform3D(2.5, 0, 0, 0, 0, -2.25, 0, 2.25, 0, 0.86234605, -0.06080246, -0.007943363)
