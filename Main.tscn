@@ -1,4 +1,4 @@
-[gd_scene load_steps=52 format=4 uid="uid://btg4b4kw78goy"]
+[gd_scene load_steps=53 format=4 uid="uid://btg4b4kw78goy"]
 
 [ext_resource type="Script" uid="uid://daoo7ummx5dnq" path="res://Scripts/KillBox.gd" id="1_1bvp3"]
 [ext_resource type="Script" uid="uid://d0vxqfrju7wg3" path="res://Scripts/CircleSpawner.gd" id="1_glv2v"]
@@ -6,9 +6,9 @@
 [ext_resource type="Script" uid="uid://d23nfy0jxge3b" path="res://Scripts/PlayerController.gd" id="3_fos0i"]
 [ext_resource type="Texture2D" uid="uid://cb5k6m0qglwra" path="res://Models/Player_WhatsApp Image 2025-09-22 at 19.53.jpg" id="3_trn2v"]
 [ext_resource type="Texture2D" uid="uid://bacjec5aaa242" path="res://Models/Player_MeatBallFinal_image.png" id="4_03owx"]
-[ext_resource type="Script" uid="uid://bpwq7eq7ty33r" path="res://Scripts/left_arm.gd" id="5_03owx"]
 [ext_resource type="Script" uid="uid://d2dxankiysb6u" path="res://Scripts/CameraFollow.gd" id="5_fos0i"]
 [ext_resource type="Environment" uid="uid://cf6fely6ntkeu" path="res://main-environment.tres" id="7_272bh"]
+[ext_resource type="Script" uid="uid://cxtgpbbpuhsch" path="res://Scripts/graplinghook.gd" id="7_wkp8b"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_3dxm6"]
 size = Vector3(1, 1.7, 1)
@@ -435,6 +435,9 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_bumrp")
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_03owx"]
+size = Vector3(0.23416138, 0.2141571, 0.64404297)
+
 [sub_resource type="ArrayMesh" id="ArrayMesh_n6b0w"]
 _surfaces = [{
 "aabb": AABB(-0.058833748, -0.111598805, -0.15702851, 0.27392298, 0.2619979, 0.41137898),
@@ -782,11 +785,10 @@ current = true
 script = ExtResource("5_fos0i")
 target = NodePath("../Player")
 offset = Vector3(0, 1.07, -0.998)
+extend_speed = 40.0
 
 [node name="right arm" type="Node3D" parent="Player/worldCam"]
 transform = Transform3D(-0.95836556, 0.2606114, 0.11669192, 0.08166296, -0.14144439, 0.98657215, 0.27361742, 0.95502615, 0.114273146, 0.022, -0.68206215, 0.998)
-script = ExtResource("5_03owx")
-extend_speed = 10.0
 
 [node name="rigth arm up" type="MeshInstance3D" parent="Player/worldCam/right arm"]
 transform = Transform3D(2.4910727, -0.05885545, 0.43553913, 0.49053717, -0.042098403, -2.2072415, 0.07437801, 2.2488372, -0.02992107, -0.9639802, -0.05851245, 0.21538734)
@@ -805,6 +807,29 @@ transform = Transform3D(2.2711487, -0.12363486, 0.9998517, 1.1224685, -0.1159897
 layers = 512
 mesh = SubResource("ArrayMesh_0f4xu")
 skeleton = NodePath("")
+
+[node name="Area3D" type="Area3D" parent="Player/worldCam/right arm/right arm down"]
+collision_layer = 0
+collision_mask = 256
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player/worldCam/right arm/right arm down/Area3D"]
+transform = Transform3D(0.98677325, 0.024216276, -0.160285, -0.021794058, 0.99961334, 0.016848918, 0.16063315, -0.013135374, 0.98692507, 0.05250156, 0.045048714, 0.12474036)
+shape = SubResource("BoxShape3D_03owx")
+
+[node name="hook" type="MeshInstance3D" parent="Player/worldCam/right arm" node_paths=PackedStringArray("start_node", "player", "end_area", "end_hand")]
+top_level = true
+skeleton = NodePath("")
+script = ExtResource("7_wkp8b")
+start_node = NodePath("../right cable")
+player = NodePath("../../../Player")
+rope_length = 50.0
+point_count = 100
+iterations = 30
+rope_width = 0.2
+resolution = 30
+end_area = NodePath("../right arm down/Area3D")
+end_hand = NodePath("../right arm down")
+return_speed = 70.0
 
 [node name="left arm" type="Node3D" parent="Player/worldCam"]
 transform = Transform3D(-0.8764917, -0.48140505, 0.0034113054, 0.08145323, -0.14131023, 0.9866088, -0.47447637, 0.86503226, 0.16306922, -0.021989822, -0.68187904, 0.998)
@@ -840,20 +865,6 @@ script = ExtResource("1_1bvp3")
 respawn_position = Vector3(0, 40, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Death-rewspawn/KillBox/Area3D"]
-transform = Transform3D(1.0000002, 0, 0, 0, 1, 0, 0, 0, 1.0000002, 0, 0, 0)
-shape = SubResource("BoxShape3D_r0du0")
-
-[node name="KillBox2" type="MeshInstance3D" parent="Death-rewspawn"]
-transform = Transform3D(4999.9995, -0.0002183734, 2.0014215, 0.1091557, 9.999999, 0.10468281, -2.0014234, -0.000209301, 4999.9995, -0.87298584, 1.3517456, 0.2861328)
-mesh = SubResource("BoxMesh_uu6xs")
-skeleton = NodePath("Area3D/CollisionShape3D")
-
-[node name="Area3D" type="Area3D" parent="Death-rewspawn/KillBox2"]
-disable_mode = 1
-script = ExtResource("1_1bvp3")
-respawn_position = Vector3(0, 40, 0)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Death-rewspawn/KillBox2/Area3D"]
 transform = Transform3D(1.0000002, 0, 0, 0, 1, 0, 0, 0, 1.0000002, 0, 0, 0)
 shape = SubResource("BoxShape3D_r0du0")
 

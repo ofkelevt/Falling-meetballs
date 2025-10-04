@@ -1,78 +1,82 @@
 extends MeshInstance3D
+# --- Endpoints and player ---
+@export var start_node: Node3D				  # player side
+@export var player: Node3D					  # CharacterBody3D or RigidBody3D
 
-@export var start: Vector3
-@export var end: Vector3
-@export var point_count: int = 10
-@export var rope_width: float = 0.05
-@export var resolution: int = 8        # ring verts
-@export var iterations: int = 4        # constraint passes
-@export var is_drawing: bool = false
-@export var dirty: bool = true
+# --- Rope params ---
+@export var rope_length: float = 12.0		   # fixed length after latch
+@export var point_count: int = 24
+@export var iterations: int = 10
+@export var rope_width: float = 0.04			# for mesh (not shown here)
+@export var resolution: int = 8				 # for mesh (not shown here)
+@export var release_slack: float = 0.7      # extra length while flying
+@export var extend_rate: float = 60.0       # m/s length change rate
+@export var latch_extra_slack: float = 0.15 # small slack after latch
+var eff_length: float = 0.0                 # effective length used for spacing
+@export var end_area: Area3D 
+# --- State ---
+enum State { IDLE, FLYING, LATCHED }
+var state: State = State.IDLE
+var end_follow: Node3D = null				   # moving latch target
+var end_local: Vector3 = Vector3.ZERO		   # latch point in target local space
+var end_pos: Vector3 = Vector3.ZERO			 # free end world pos when FLYING
+var end_vel: Vector3 = Vector3.ZERO
+@export var end_hand: Node3D
+@onready var end: Vector3 =  start_node.global_transform.origin
 
+# --- Integrator (rope) ---
 var points: Array[Vector3] = []
 var points_old: Array[Vector3] = []
 var point_spacing: float = 0.0
 var gravity_default: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+@export var return_speed : float = 40.0
+@export var return_accel : float = 200.0
+var returning: bool = false
+const EPS := 1e-4
 
-func _ready():
+func _ready() -> void:
 	mesh = ArrayMesh.new()
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.9, 0.2, 0.2)        # pick a color
-	# Optional: show pure color without lights
-	# mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material_override = mat                         # or: mesh.surface_set_material(0, mat)
-
+	_update_point_spacing()
 	_prepare_points()
-	_generate_mesh()
+	end_area.monitoring = true
+	end_area.monitorable = true
+	end_area.collision_layer = 1 << 7			# RopeProbe layer
+	end_area.collision_mask = (1 << 0) | (1 << 2) # e.g., World|Latchables
+	end_area.body_entered.connect(_on_end_body_entered)
+	end_area.area_entered.connect(_on_end_area_entered)
 
-func _process(delta: float) -> void:
-	if dirty or is_drawing:
-		_update_points(delta)
+
+
+func _physics_process(delta: float) -> void:
+	end_area.global_transform.origin = end_pos  
+	if start_node == null:
+		return
+	var start := start_node.global_transform.origin
+	end = _update_end(delta, start)
+	if state == State.FLYING:
+		var d := start.distance_to(end_pos)
+		var target : float = min(rope_length, d + release_slack)	# follow distance + slack
+		eff_length = move_toward(eff_length, target, extend_rate * delta)
+		eff_length = clamp(eff_length, d, rope_length)	   # never shorter than d, never beyond cap
+		_set_spacing_from(eff_length)
+	elif state == State.LATCHED:
+		_set_spacing_from(rope_length)
+	else: # IDLE
+		eff_length = 0.0
+	_update_points(delta, start, end)
+
+	# 3) Enforce taut behavior on player only when tight
+	_tether_player_if_tight(start, end)
+
+	# 4) (Optional) update visual mesh
+	if state != State.IDLE:
 		_generate_mesh()
-		dirty = false
-
-func _prepare_points() -> void:
-	points.clear()
-	points_old.clear()
-	for i in range(point_count):
-		var t := float(i) / float(point_count - 1)
-		var p := start.lerp(end, t)
-		points.append(p)
-		points_old.append(p)
-	_update_spacing()
-
-func _update_spacing() -> void:
-	point_spacing = (end - start).length() / float(point_count - 1)
-
-func _update_points(delta: float) -> void:
-	points[0] = start
-	points[point_count - 1] = end
-	_update_spacing()
-
-	# Verlet integrate
-	for i in range(1, point_count - 1):
-		var cur := points[i]
-		var vel := points[i] - points_old[i]
-		points[i] = points[i] + vel + Vector3.DOWN * gravity_default * delta * delta
-		points_old[i] = cur
-
-	# Satisfy distance constraints
-	for _i in range(iterations):
-		_satisfy_constraints()
-
-func _satisfy_constraints() -> void:
-	for i in range(point_count - 1):
-		var seg := points[i + 1] - points[i]
-		var dist := seg.length()
-		if dist == 0.0:
-			continue
-		var dir := seg / dist
-		var diff := dist - point_spacing
-		if i != 0:
-			points[i] += dir * (diff * 0.5)
-		if i + 1 != point_count - 1:
-			points[i + 1] -= dir * (diff * 0.5)
-
+	else:
+		var am := mesh as ArrayMesh
+		if am: am.clear_surfaces()
+	if end_hand:
+		end_hand.global_position = end
+# ---------- genarate mesh----------
 # Build Frenet-like frames per point
 func _compute_frames() -> Dictionary:
 	var tangents: Array[Vector3] = []
@@ -105,7 +109,7 @@ func _compute_frames() -> Dictionary:
 				normals.append(rot * n_prev)
 
 	return {"t": tangents, "n": normals}
-
+	
 func _generate_mesh() -> void:
 	var frames := _compute_frames()
 	var tangents: Array[Vector3] = frames["t"]
@@ -155,3 +159,166 @@ func _generate_mesh() -> void:
 	st.generate_normals()
 	mesh.clear_surfaces()
 	st.commit(mesh)
+# ---------- Public control ----------
+func shoot(dir: Vector3, speed: float) -> void:
+	state = State.FLYING
+	end_follow = null
+	end_pos = start_node.global_transform.origin
+	end_vel = dir.normalized() * speed
+
+func latch_to(target: Node3D, hit_world: Vector3) -> void:
+	state = State.LATCHED
+	end_follow = target
+	end_local = target.to_local(hit_world)
+
+	var start := start_node.global_transform.origin
+	var d := start.distance_to(hit_world)
+	# cap stays as previous rope_length; freeze current effective length with a bit of slack
+	rope_length = min(rope_length, max(d, eff_length) + latch_extra_slack)
+	eff_length = rope_length
+	_set_spacing_from(rope_length)
+	_prepare_points()
+
+
+func release() -> void:
+	state = State.IDLE
+	end_follow = null
+
+# ---------- Internals ----------
+func _set_spacing_from(L: float) -> void:
+	point_spacing = L / float(max(point_count - 1, 1))
+func _update_end(delta: float, start: Vector3) -> Vector3:
+	match state:
+		State.IDLE:
+			# keep end at start (no rope)
+			end_pos = start
+		State.FLYING:
+			var r := end_pos - start
+			var vstep := end_vel * delta
+			var dis := r.length()
+
+			if not returning:
+				# went from inside to outside this step
+				if dis >= rope_length:
+					# clamp to sphere surface
+					var n := (r + vstep).normalized()
+					end_pos = start + n * rope_length
+					# redirect velocity toward start; keep speed or use return_speed
+					var speed : float = max(end_vel.length(), return_speed)
+					end_vel = -(end_pos - start).normalized() * speed
+					returning = true
+				else:
+					end_pos += vstep
+			else:
+				# fly back to start with acceleration, then stop
+				var dir_back := (start - end_pos).normalized()
+				var player_vel : Vector3= _get_player_velocity()
+				end_vel = end_vel.move_toward(player_vel + dir_back * return_speed, return_accel * delta)
+				end_pos += end_vel * delta
+				if end_pos.distance_to(start) <= max(0.1, return_speed * delta):
+					end_pos = start
+					end_vel = Vector3.ZERO
+					returning = false
+					state = State.IDLE
+		State.LATCHED:
+			var t := end_follow
+			if t and t.is_inside_tree():
+				# follow the exact latch point on a moving target
+				end_pos = t.to_global(end_local)
+			else:
+				state = State.IDLE
+				end_pos = start
+	return end_pos
+
+func _update_point_spacing() -> void:
+	point_spacing = rope_length / float(max(point_count - 1, 1))
+
+func _prepare_points() -> void:
+	points.resize(0); points_old.resize(0)
+	var a := start_node.global_transform.origin
+	var b := end_pos
+	for i in range(point_count):
+		var t := float(i) / float(max(point_count - 1, 1))
+		var p := a.lerp(b, t)
+		points.append(p)
+		points_old.append(p)
+
+@warning_ignore("shadowed_variable")
+func _update_points(delta: float, start: Vector3, end: Vector3) -> void:
+	if points.size() != point_count:
+		_prepare_points()
+
+	# pin ends to nodes
+	points[0] = start
+	points[point_count - 1] = end
+
+	# Verlet integrate interior
+	for i in range(1, point_count - 1):
+		var cur := points[i]
+		var vel := points[i] - points_old[i]
+		points[i] = points[i] + vel + Vector3.DOWN * gravity_default * delta * delta
+		points_old[i] = cur
+
+	# satisfy segment constraints
+	for _k in range(iterations):
+		_satisfy_constraints(start, end)
+
+@warning_ignore("shadowed_variable")
+func _satisfy_constraints(start: Vector3, end: Vector3) -> void:
+	# ends remain pinned to start/end
+	for i in range(point_count - 1):
+		var seg := points[i + 1] - points[i]
+		var dist := seg.length()
+		if dist <= 1e-8:
+			continue
+		var dir := seg / dist
+		var diff := dist - point_spacing
+		if i != 0:
+			points[i] += dir * (diff * 0.5)
+		if i + 1 != point_count - 1:
+			points[i + 1] -= dir * (diff * 0.5)
+	points[0] = start
+	points[point_count - 1] = end
+
+# Only redirect velocity when rope is taut.
+@warning_ignore("shadowed_variable")
+func _tether_player_if_tight(start: Vector3, end: Vector3) -> void:
+	if state != State.LATCHED: return
+	var limit := rope_length
+	if start.distance_to(end) < limit - EPS: return
+
+	var n := (start - end).normalized()  # from anchor(end) toward player(start)
+
+	# get + set velocity on CharacterBody3D or RigidBody3D
+	var v : Vector3 = _get_player_velocity()
+	if v == null:
+		return
+
+	# remove outward radial component only (keep tangential, keep inward)
+	var vn := v.dot(n)
+	if vn > 0.0:
+		v -= n * vn
+		_set_player_velocity(v)
+
+func _get_player_velocity():
+	if player is CharacterBody3D:
+		return (player as CharacterBody3D).velocity
+	if player is RigidBody3D:
+		return (player as RigidBody3D).linear_velocity
+	return null
+
+func _set_player_velocity(v: Vector3) -> void:
+	if player is CharacterBody3D:
+		(player as CharacterBody3D).velocity = v
+	elif player is RigidBody3D:
+		(player as RigidBody3D).linear_velocity = v
+func _on_end_body_entered(body: Node3D) -> void:
+	if (body.collision_layer & 1<<8) == 0: return
+	latch_to(body, end_area.global_transform.origin)
+	print_debug(body.get_path())
+	print_debug(body.collision_layer && 1<<8 == 0)
+func _on_end_area_entered(body: Node3D) -> void:
+	if (body.collision_layer & 1<<8) == 0: return
+	latch_to(body, end_area.global_transform.origin)
+	print_debug(body.get_path())
+	print_debug(body.collision_layer && 1<<8 == 0)
