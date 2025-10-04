@@ -1,4 +1,4 @@
-extends Camera3D
+extends Node3D
 
 @export var move_speed: float = 10.0
 @export var mouse_sensitivity: float = 0.002
@@ -10,7 +10,7 @@ func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
+	if event is InputEventMouseMotion and self.is_class("Camera3D"):
 		yaw -= event.relative.x * mouse_sensitivity
 		pitch -= event.relative.y * mouse_sensitivity
 		pitch = clamp(pitch, -1.5, 1.5) # prevent flipping

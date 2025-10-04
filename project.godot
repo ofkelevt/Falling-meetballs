@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Falling meetball"
-run/main_scene="uid://ba03mthc0q2lx"
+run/main_scene="uid://btg4b4kw78goy"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 
 [dotnet]
@@ -58,4 +58,5 @@ down={
 
 [layer_names]
 
+3d_render/layer_9="latchable"
 3d_render/layer_10="Hands"

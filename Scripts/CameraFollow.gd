@@ -29,3 +29,14 @@ func _gather_materials(n: Node) -> Array:
 	for c in n.get_children():
 		out += _gather_materials(c)
 	return out
+# LeftArmExtend.gd
+
+@export var extend_speed: float = 2.0  # units/sec
+
+#@onready var left_cable: Node3D     = $"right cable"
+#@onready var left_arm_down: Node3D  = $"right arm down"
+@onready var rope := $"right arm/hook"
+func _unhandled_input(event):
+	if event.is_action_pressed("grapling Hook"):
+		var dir = -global_transform.basis.z  # camera forward
+		rope.shoot(dir, extend_speed)

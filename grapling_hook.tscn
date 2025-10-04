@@ -8,14 +8,14 @@
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 top_level = true
 script = ExtResource("1_1nkp0")
-start = Vector3(0, 13, 7)
-end = Vector3(10, 0, 0)
+rope_length = 20.0
 point_count = 100
 rope_width = 1.0
 resolution = 30
-iterations = 10
-is_drawing = true
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.99954, 0, 0.030329078, 0, 1, 0, -0.030329078, 0, 0.99954, 0, 0, 9.060164)
+transform = Transform3D(0.999928, 0.0029920237, -0.01162071, 0, 0.9684157, 0.2493413, 0.011999712, -0.24932334, 0.96834594, 4.704944, 0.0011756644, 9.357245)
+
+[node name="Node3D" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, -4.656613e-10, 1, 0, -9.313226e-10, -1.4901161e-08, 0.99999994, -4.7683716e-07, 2.2351742e-08, 0)
 script = ExtResource("2_os60d")
