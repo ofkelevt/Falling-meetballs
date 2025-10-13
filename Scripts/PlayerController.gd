@@ -2,7 +2,6 @@ extends CharacterBody3D
 
 @export var mouse_sensitivity: float = 2.0
 @export var camera: Camera3D
-
 @export var fall_multiplier: float = 2.5
 @export var max_fall_speed: float = -20.0
 @export var apex_time_scale: float = 0.7
@@ -14,15 +13,25 @@ extends CharacterBody3D
 @export var ground_friction: float = 20.0
 @export var air_drag: float = 2.0
 @export var over_speed_friction: float = 40.0
-
+@export var weapons: Array[Node3D]
+@export var weapon_switch_cooldown: float = 2.0
+@onready var cooldown_cur:float = 0
+@export var extend_speed: float = 2.0  # units/sec
+@export var rope : MeshInstance3D
+var switch_lock : bool = false
+var cur_weapon: int = 1
 var _pitch := 0.0
 var _move_dir := Vector3.ZERO
 var _jumped = false;
 var collision 
+var inDash = 0
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	collision = $CollisionShape3D
+	for i in range(1,len(weapons)):
+		weapons[i].visible = false
+	weapons[0].visible = true
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -31,8 +40,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		if camera:
 			camera.rotation.x = _pitch
 			camera.rotation.y -= event.relative.x * mouse_sensitivity * 0.001
-
-func _process(_dt: float) -> void:
+func _process(dt: float) -> void:
+	cooldown_cur -= dt
+	switch_lock = not rope.isIdleOrReturning()
 	# WASD relative to camera yaw
 	var f := (camera.global_transform.basis.z * -1.0) if camera else -global_transform.basis.z
 	f.y = 0.0
@@ -57,8 +67,26 @@ func _process(_dt: float) -> void:
 		_jumped = true;
 	if collision.position != Vector3.ZERO:
 		print_debug("bug")
-
+func select_weapon(num: int):
+	if cooldown_cur < 0:
+		cooldown_cur = weapon_switch_cooldown
+		for i in range(len(weapons)):
+			if i != num:
+				weapons[i].visible = false
+			else: weapons[i].visible = true
+		cur_weapon = num if num != cur_weapon else -1
+func _input(event):
+	if event is InputEventKey and event.pressed and not event.echo and not switch_lock:
+		var kc = event.keycode
+		for i in range(len(weapons)):
+			if kc == KEY_1 + i:
+				select_weapon(i)
+			# add as many as you need
 func _physics_process(dt: float) -> void:
+	if inDash > 0:
+		move_and_slide()
+		inDash -= 1
+		return
 	# Gravity adjustments
 	if not is_on_floor():
 		if velocity.y <= 0:
@@ -84,7 +112,6 @@ func _physics_process(dt: float) -> void:
 	else:
 		var accel := ground_accel if is_on_floor() else air_accel
 		velocity += _move_dir * accel * dt
-	
 
 	# Soft cap
 	var speed := Vector2(velocity.x, velocity.z).length()

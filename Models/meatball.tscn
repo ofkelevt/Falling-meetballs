@@ -12,7 +12,8 @@ radius = 1.15
 
 [node name="meatball" type="RigidBody3D"]
 disable_mode = 2
-collision_layer = 257
+collision_layer = 385
+collision_mask = 129
 physics_material_override = SubResource("PhysicsMaterial_7mhmu")
 gravity_scale = 0.0
 freeze = true
