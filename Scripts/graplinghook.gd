@@ -12,8 +12,13 @@ extends MeshInstance3D
 @export var release_slack: float = 0.7      # extra length while flying
 @export var extend_rate: float = 60.0       # m/s length change rate
 @export var latch_extra_slack: float = 0.15 # small slack after latch
+@export var bump_add_speed := 18.0   # Δv toward anchor when recalling
+@export var bump_impulse   := 0.0    # if >0 and player is RigidBody3D, use impulse
+@onready var rope_length_def: float = rope_length  
 var eff_length: float = 0.0                 # effective length used for spacing
 @export var end_area: Area3D 
+@export var extend_speed: float = 80
+@export var camera: Camera3D
 # --- State ---
 enum State { IDLE, FLYING, LATCHED }
 var state: State = State.IDLE
@@ -21,6 +26,7 @@ var end_follow: Node3D = null				   # moving latch target
 var end_local: Vector3 = Vector3.ZERO		   # latch point in target local space
 var end_pos: Vector3 = Vector3.ZERO			 # free end world pos when FLYING
 var end_vel: Vector3 = Vector3.ZERO
+var current: bool = false
 @export var end_hand: Node3D
 @onready var end: Vector3 =  start_node.global_transform.origin
 
@@ -44,9 +50,11 @@ func _ready() -> void:
 	end_area.collision_mask = (1 << 0) | (1 << 2) # e.g., World|Latchables
 	end_area.body_entered.connect(_on_end_body_entered)
 	end_area.area_entered.connect(_on_end_area_entered)
-
-
-
+	visibility_changed.connect(_on_visibility_changed)
+@export var parent: Node3D
+func _on_visibility_changed() -> void:
+	if parent:
+		parent.visible = visible
 func _physics_process(delta: float) -> void:
 	end_area.global_transform.origin = end_pos  
 	if start_node == null:
@@ -160,11 +168,49 @@ func _generate_mesh() -> void:
 	mesh.clear_surfaces()
 	st.commit(mesh)
 # ---------- Public control ----------
-func shoot(dir: Vector3, speed: float) -> void:
-	state = State.FLYING
-	end_follow = null
-	end_pos = start_node.global_transform.origin
-	end_vel = dir.normalized() * speed
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("right click") and visible:
+		shoot()
+func shoot() -> void:
+	var dir = -camera.global_transform.basis.z
+	if state == State.IDLE:
+		state = State.FLYING
+		end_follow = null
+		end_pos = start_node.global_transform.origin
+		end_vel = dir.normalized() * extend_speed
+	else:
+		print_debug("yo")
+			  # recalling while FLYING/LATCHED/RETURNING
+		var had_anchor := (state == State.LATCHED and end_follow != null)
+		var anchor_world :=  end_follow.to_global(end_local) if had_anchor else end_pos
+
+		# detach and start return
+		end_follow = null
+		state = State.FLYING
+		returning = true
+		rope_length = rope_length_def
+
+		if had_anchor:
+			_bump_player_toward(anchor_world)
+
+func _bump_player_toward(target: Vector3) -> void:
+	var start := start_node.global_transform.origin
+	var dir := (target - start)
+	var L := dir.length()
+	if L < 1e-6: return
+	dir /= L
+
+	if player is CharacterBody3D:
+		var cb := player as CharacterBody3D
+		var vel =  dir * bump_add_speed + gravity_default * Vector3.UP
+		vel *= max(1, 1.5*rope_length/rope_length_def) 
+		cb.velocity += vel
+	elif player is RigidBody3D:
+		var rb := player as RigidBody3D
+		if bump_impulse > 0.0:
+			rb.apply_impulse(dir * bump_impulse)	 # Godot 4
+		else:
+			rb.linear_velocity = rb.linear_velocity + dir * bump_add_speed
 
 func latch_to(target: Node3D, hit_world: Vector3) -> void:
 	state = State.LATCHED
@@ -313,12 +359,16 @@ func _set_player_velocity(v: Vector3) -> void:
 	elif player is RigidBody3D:
 		(player as RigidBody3D).linear_velocity = v
 func _on_end_body_entered(body: Node3D) -> void:
-	if (body.collision_layer & 1<<8) == 0: return
+	if !latch(body): return
 	latch_to(body, end_area.global_transform.origin)
 	print_debug(body.get_path())
 	print_debug(body.collision_layer && 1<<8 == 0)
 func _on_end_area_entered(body: Node3D) -> void:
-	if (body.collision_layer & 1<<8) == 0: return
+	if !latch(body): return
 	latch_to(body, end_area.global_transform.origin)
 	print_debug(body.get_path())
 	print_debug(body.collision_layer && 1<<8 == 0)
+func latch(body: Node3D):
+	return !(( body.collision_layer & 1<<8) == 0 || state != State.FLYING || returning)
+func isIdleOrReturning():
+	return state == State.IDLE || returning

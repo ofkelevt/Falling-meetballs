@@ -1,0 +1,9 @@
+[gd_resource type="GradientTexture2D" load_steps=2 format=3 uid="uid://03uqjsduhg77"]
+
+[ext_resource type="Gradient" uid="uid://hisotm316r04" path="res://Models/glow_gradient.tres" id="1_vja1m"]
+
+[resource]
+gradient = ExtResource("1_vja1m")
+width = 512
+height = 512
+fill = 1

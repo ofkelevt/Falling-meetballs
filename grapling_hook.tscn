@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://ba03mthc0q2lx"]
 
 [ext_resource type="Script" uid="uid://cxtgpbbpuhsch" path="res://Scripts/graplinghook.gd" id="1_1nkp0"]
-[ext_resource type="Script" uid="uid://hnj7ugdal2mq" path="res://Free Flight.gd" id="2_os60d"]
+[ext_resource type="Script" uid="uid://hnj7ugdal2mq" path="res://Scripts/Free Flight.gd" id="2_os60d"]
 
 [node name="Node3D" type="Node3D"]
 
